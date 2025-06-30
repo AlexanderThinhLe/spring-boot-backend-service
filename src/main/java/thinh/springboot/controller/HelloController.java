@@ -15,6 +15,6 @@ public class HelloController {
     @Operation(summary = "Test API", description = "This is description of test API")
     @GetMapping("/hello")
     public String greeting(@RequestParam String name) {
-        return "Hello " + name;
+        return "Welcome " + name;
     }
 }
