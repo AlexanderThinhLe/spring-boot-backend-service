@@ -3,28 +3,23 @@ package thinh.springboot.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Min;
-import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import thinh.springboot.controller.request.UserChangePwRequest;
 import thinh.springboot.controller.request.UserCreationRequest;
 import thinh.springboot.controller.request.UserUpdateRequest;
 import thinh.springboot.controller.response.UserResponse;
-import thinh.springboot.service.UserService;
 
-import java.util.*;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/user")
-@Tag(name = "User Controller")
-@RequiredArgsConstructor
-public class UserController {
-
-    private final UserService userService;
-    
+@RequestMapping("/mockup/user")
+@Tag(name = "Mockup User Controller")
+public class MockupUserController {
     @Operation(summary = "Get user list", description = "API retrieve user from db")
     @GetMapping("/list")
     public Map<String, Object> getList(@RequestParam(required = false) String keyword,
@@ -85,13 +80,13 @@ public class UserController {
 
     @Operation(summary = "Create new user", description = "API add new user to db")
     @PostMapping("/add")
-    public ResponseEntity<Map<String, Object>> createUser(@RequestBody UserCreationRequest request) {
+    public Map<String, Object> createUser(@RequestBody UserCreationRequest request) {
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("status", HttpStatus.CREATED.value());
         result.put("message", "User created successfully");
-        result.put("data", userService.save(request));
+        result.put("data", 3);
 
-        return new ResponseEntity<>(result, HttpStatus.CREATED);
+        return result;
     }
 
     @Operation(summary = "Update user", description = "API update user to db")
