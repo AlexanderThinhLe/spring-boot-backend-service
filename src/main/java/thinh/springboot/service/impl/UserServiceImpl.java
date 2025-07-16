@@ -2,8 +2,10 @@ package thinh.springboot.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.ResourceAccessException;
 import thinh.springboot.common.Gender;
 import thinh.springboot.common.UserStatus;
 import thinh.springboot.controller.request.AddressRequest;
@@ -11,6 +13,7 @@ import thinh.springboot.controller.request.UserChangePwRequest;
 import thinh.springboot.controller.request.UserCreationRequest;
 import thinh.springboot.controller.request.UserUpdateRequest;
 import thinh.springboot.controller.response.UserResponse;
+import thinh.springboot.exception.ResourceNotFoundException;
 import thinh.springboot.model.AddressEntity;
 import thinh.springboot.model.UserEntity;
 import thinh.springboot.repository.AddressRepository;
@@ -26,6 +29,7 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final AddressRepository addressRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public List<UserResponse> findAll() {
@@ -91,18 +95,84 @@ public class UserServiceImpl implements UserService {
         return user.getId();
     }
 
-    @Override
-    public void update(UserUpdateRequest request) {
-        // TODO: Implement update user logic
+    @Transactional(rollbackFor = Exception.class)
+    public void update(UserUpdateRequest req) {
+        log.info("Updating user: {}", req);
+
+        // Get user by id
+        UserEntity user = getUserEntity(req.getId());
+        user.setFirstName(req.getFirstName());
+        user.setLastName(req.getLastName());
+        user.setGender(req.getGender());
+        user.setDateOfBirth(req.getBirthday());
+        user.setEmail(req.getEmail());
+        user.setPhone(req.getPhone());
+        user.setUsername(req.getUsername());
+
+        userRepository.save(user);
+        log.info("Updated user: {}", user);
+
+        // save address
+        List<AddressEntity> addresses = new ArrayList<>();
+
+        req.getAddresses().forEach(address -> {
+            AddressEntity addressEntity = addressRepository.findByUserIdAndAddressType(user.getId(), address.getAddressType());
+
+            if (addressEntity == null) {
+                addressEntity = new AddressEntity();
+            }
+
+            addressEntity.setApartmentNumber(address.getApartmentNumber());
+            addressEntity.setFloor(address.getFloor());
+            addressEntity.setBuilding(address.getBuilding());
+            addressEntity.setStreetNumber(address.getStreetNumber());
+            addressEntity.setStreet(address.getStreet());
+            addressEntity.setCity(address.getCity());
+            addressEntity.setCountry(address.getCountry());
+            addressEntity.setAddressType(address.getAddressType());
+            addressEntity.setUserId(user.getId());
+
+            addresses.add(addressEntity);
+        });
+
+        // save addresses
+        addressRepository.saveAll(addresses);
+        log.info("Updated addresses: {}", addresses);
     }
 
     @Override
-    public void changePassword(UserChangePwRequest request) {
-        // TODO: Implement change password logic
+    public void changePassword(UserChangePwRequest req) {
+        log.info("Changing password for user: {}", req);
+
+        // Get user by id
+        UserEntity user = getUserEntity(req.getId());
+        if (req.getPassword().equals(req.getConfirmPassword())) {
+            user.setPassword(passwordEncoder.encode(req.getPassword()));
+        }
+
+        userRepository.save(user);
+        log.info("Changed password for user: {}", user);
     }
 
     @Override
     public void delete(Long id) {
-        // TODO: Implement delete user logic
+        log.info("Deleting user: {}", id);
+
+        // Get user by id
+        UserEntity user = getUserEntity(id);
+        user.setStatus(UserStatus.INACTIVE);
+
+        userRepository.save(user);
+        log.info("Deleted user id: {}", id);
+    }
+
+    /**
+     * Get user by id
+     *
+     * @param id
+     * @return
+     */
+    private UserEntity getUserEntity(Long id) {
+        return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 } 

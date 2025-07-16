@@ -7,5 +7,5 @@ import thinh.springboot.model.AddressEntity;
 
 @Repository // @Repository is optional in here
 public interface AddressRepository extends JpaRepository<AddressEntity, Long> {
-    
+    AddressEntity findByUserIdAndAddressType(Long userId, Integer addressType);
 } 
