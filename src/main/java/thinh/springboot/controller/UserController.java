@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -20,6 +21,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/user")
 @Tag(name = "User Controller")
+@Slf4j(topic = "USER-CONTROLLER")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -97,6 +99,8 @@ public class UserController {
     @Operation(summary = "Update user", description = "API update user to db")
     @PutMapping("/update")
     public Map<String, Object> updateUser(@RequestBody UserUpdateRequest request) {
+        userService.update(request);
+
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("status", HttpStatus.ACCEPTED.value());
         result.put("message", "User updated successfully");
@@ -108,6 +112,8 @@ public class UserController {
     @Operation(summary = "Change user password", description = "API change user password")
     @PatchMapping("/change-pw")
     public Map<String, Object> changePassword(@RequestBody UserChangePwRequest request) {
+        userService.changePassword(request);
+
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("status", HttpStatus.NO_CONTENT.value());
         result.put("message", "Updated password successfully");
@@ -119,6 +125,8 @@ public class UserController {
     @Operation(summary = "Delete user", description = "API inactivate user")
     @DeleteMapping("/delete/{userId}")
     public Map<String, Object> deleteUser(@PathVariable @Validated @Min(1) Long userId) {
+        userService.delete(userId);
+
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("status", HttpStatus.RESET_CONTENT.value());
         result.put("message", "User deleted successfully");
