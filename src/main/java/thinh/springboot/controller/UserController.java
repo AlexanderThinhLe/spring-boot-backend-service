@@ -2,6 +2,7 @@ package thinh.springboot.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 
@@ -23,6 +24,7 @@ import java.util.*;
 @Tag(name = "User Controller")
 @Slf4j(topic = "USER-CONTROLLER")
 @RequiredArgsConstructor
+@Validated
 public class UserController {
 
     private final UserService userService;
@@ -45,7 +47,7 @@ public class UserController {
 
     @Operation(summary = "Get user detail", description = "API retrieve user by ID")
     @GetMapping("/{userId}")
-    public Map<String, Object> getUserDetail(@PathVariable @Validated @Min(1) Long userId) {
+    public Map<String, Object> getUserDetail(@PathVariable @Validated @Min(value = 1, message = "User ID must be greater than 0") Long userId) {
         UserResponse user = userService.findById(userId);
 
         Map<String, Object> result = new LinkedHashMap<>();
@@ -58,7 +60,7 @@ public class UserController {
 
     @Operation(summary = "Create new user", description = "API add new user to db")
     @PostMapping("/add")
-    public ResponseEntity<Map<String, Object>> createUser(@RequestBody UserCreationRequest request) {
+    public ResponseEntity<Map<String, Object>> createUser(@RequestBody @Valid UserCreationRequest request) {
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("status", HttpStatus.CREATED.value());
         result.put("message", "User created successfully");
@@ -69,7 +71,7 @@ public class UserController {
 
     @Operation(summary = "Update user", description = "API update user to db")
     @PutMapping("/update")
-    public Map<String, Object> updateUser(@RequestBody UserUpdateRequest request) {
+    public Map<String, Object> updateUser(@RequestBody @Valid UserUpdateRequest request) {
         userService.update(request);
 
         Map<String, Object> result = new LinkedHashMap<>();
@@ -82,7 +84,7 @@ public class UserController {
 
     @Operation(summary = "Change user password", description = "API change user password")
     @PatchMapping("/change-pw")
-    public Map<String, Object> changePassword(@RequestBody UserChangePwRequest request) {
+    public Map<String, Object> changePassword(@RequestBody @Valid UserChangePwRequest request) {
         userService.changePassword(request);
 
         Map<String, Object> result = new LinkedHashMap<>();
@@ -95,7 +97,7 @@ public class UserController {
 
     @Operation(summary = "Delete user", description = "API inactivate user")
     @DeleteMapping("/delete/{userId}")
-    public Map<String, Object> deleteUser(@PathVariable @Validated @Min(1) Long userId) {
+    public Map<String, Object> deleteUser(@PathVariable @Validated @Min(value = 1, message = "User ID must be greater than 0") Long userId) {
         userService.delete(userId);
 
         Map<String, Object> result = new LinkedHashMap<>();
