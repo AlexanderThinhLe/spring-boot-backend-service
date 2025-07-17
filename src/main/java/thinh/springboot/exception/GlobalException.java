@@ -114,6 +114,80 @@ public class GlobalException {
         return errorResponse;
     }
 
+    /**
+     * Handle exception when the data is conflicted
+     *
+     * @param e
+     * @param request
+     * @return
+     */
+    @ExceptionHandler(InvalidDataException.class)
+    @ResponseStatus(CONFLICT) // ~ 409
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "409", description = "Conflict",
+                    content = {@Content(mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    name = "409 Response",
+                                    summary = "Handle exception when input data is conflicted",
+                                    value = """
+                                            {
+                                              "timestamp": "2023-10-19T06:07:35.321+00:00",
+                                              "status": 409,
+                                              "path": "/api/v1/...",
+                                              "error": "Conflict",
+                                              "message": "{data} exists, Please try again!"
+                                            }
+                                            """
+                            ))})
+    })
+    public ErrorResponse handleDuplicateKeyException(InvalidDataException e, WebRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setTimestamp(new Date());
+        errorResponse.setPath(request.getDescription(false).replace("uri=", ""));
+        errorResponse.setStatus(CONFLICT.value());
+        errorResponse.setError(CONFLICT.getReasonPhrase());
+        errorResponse.setMessage(e.getMessage());
+
+        return errorResponse;
+    }
+
+    /**
+     * Handle exception when internal server error
+     *
+     * @param e
+     * @param request
+     * @return error
+     */
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(INTERNAL_SERVER_ERROR) // ~ 500
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = {@Content(mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    name = "500 Response",
+                                    summary = "Handle exception when internal server error",
+                                    value = """
+                                            {
+                                              "timestamp": "2023-10-19T06:35:52.333+00:00",
+                                              "status": 500,
+                                              "path": "/api/v1/...",
+                                              "error": "Internal Server Error",
+                                              "message": "Connection timeout, please try again"
+                                            }
+                                            """
+                            ))})
+    })
+    public ErrorResponse handleException(Exception e, WebRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setTimestamp(new Date());
+        errorResponse.setPath(request.getDescription(false).replace("uri=", ""));
+        errorResponse.setStatus(INTERNAL_SERVER_ERROR.value());
+        errorResponse.setError(INTERNAL_SERVER_ERROR.getReasonPhrase());
+        errorResponse.setMessage(e.getMessage());
+
+        return errorResponse;
+    }
+
     @Getter
     @Setter
     private class ErrorResponse {
