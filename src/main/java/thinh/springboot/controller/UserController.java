@@ -26,56 +26,27 @@ import java.util.*;
 public class UserController {
 
     private final UserService userService;
-    
+
     @Operation(summary = "Get user list", description = "API retrieve user from db")
     @GetMapping("/list")
-    public Map<String, Object> getList(@RequestParam(required = false) String keyword,
-                                      @RequestParam(defaultValue = "0") int page,
-                                      @RequestParam(defaultValue = "20") int size) {
-        UserResponse userResponse1 = new UserResponse();
-        userResponse1.setId(1L);
-        userResponse1.setFirstName("Thinh Le");
-        userResponse1.setLastName("Alexander");
-        userResponse1.setGender("");
-        userResponse1.setBirthday(new Date());
-        userResponse1.setUsername("Admin");
-        userResponse1.setEmail("admin@gmail.com");
-        userResponse1.setPhone("0866681063");
-
-        UserResponse userResponse2 = new UserResponse();
-        userResponse2.setId(2L);
-        userResponse2.setFirstName("Thinh Le 2");
-        userResponse2.setLastName("Alexander");
-        userResponse2.setGender("");
-        userResponse2.setBirthday(new Date());
-        userResponse2.setUsername("Admin 2");
-        userResponse2.setEmail("admin2@gmail.com");
-        userResponse2.setPhone("0866681063");
-
-        List<UserResponse> userList = List.of(userResponse1, userResponse2);
+    public ResponseEntity<Map<String, Object>> getList(@RequestParam(required = false) String keyword,
+                                                       @RequestParam(required = false) String sort, // Example: firstName:asc
+                                                       @RequestParam(defaultValue = "0") int page,
+                                                       @RequestParam(defaultValue = "20") int size) {
+        log.info("Get user list");
 
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("status", HttpStatus.OK.value());
-        result.put("message", "List user");
-        result.put("data", userList);
+        result.put("message", "user list");
+        result.put("data", userService.findAll(keyword, sort, page, size));
 
-        return result;
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @Operation(summary = "Get user detail", description = "API retrieve user by ID")
     @GetMapping("/{userId}")
     public Map<String, Object> getUserDetail(@PathVariable @Validated @Min(1) Long userId) {
-        UserResponse user = new UserResponse();
-        user.setId(1L);
-        user.setFirstName("Thinh Le");
-        user.setLastName("Alexander");
-        user.setGender("");
-        user.setBirthday(new Date());
-        user.setUsername("Admin");
-        user.setEmail("admin@gmail.com");
-        user.setPhone("0866681063");
-
-        List<UserResponse> userDetail = List.of(user, user);
+        UserResponse user = userService.findById(userId);
 
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("status", HttpStatus.OK.value());

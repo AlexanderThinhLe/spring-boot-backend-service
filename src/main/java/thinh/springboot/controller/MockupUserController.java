@@ -29,7 +29,7 @@ public class MockupUserController {
         userResponse1.setId(1L);
         userResponse1.setFirstName("Thinh Le");
         userResponse1.setLastName("Alexander");
-        userResponse1.setGender("");
+        userResponse1.setGender(null);
         userResponse1.setBirthday(new Date());
         userResponse1.setUsername("Admin");
         userResponse1.setEmail("admin@gmail.com");
@@ -39,7 +39,7 @@ public class MockupUserController {
         userResponse2.setId(2L);
         userResponse2.setFirstName("Thinh Le 2");
         userResponse2.setLastName("Alexander");
-        userResponse2.setGender("");
+        userResponse2.setGender(null);
         userResponse2.setBirthday(new Date());
         userResponse2.setUsername("Admin 2");
         userResponse2.setEmail("admin2@gmail.com");
@@ -62,7 +62,7 @@ public class MockupUserController {
         user.setId(1L);
         user.setFirstName("Thinh Le");
         user.setLastName("Alexander");
-        user.setGender("");
+        user.setGender(null);
         user.setBirthday(new Date());
         user.setUsername("Admin");
         user.setEmail("admin@gmail.com");
