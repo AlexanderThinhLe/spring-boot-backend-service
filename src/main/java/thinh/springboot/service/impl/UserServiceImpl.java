@@ -18,6 +18,7 @@ import thinh.springboot.controller.request.UserCreationRequest;
 import thinh.springboot.controller.request.UserUpdateRequest;
 import thinh.springboot.controller.response.UserPageResponse;
 import thinh.springboot.controller.response.UserResponse;
+import thinh.springboot.exception.InvalidDataException;
 import thinh.springboot.exception.ResourceNotFoundException;
 import thinh.springboot.model.AddressEntity;
 import thinh.springboot.model.UserEntity;
@@ -103,7 +104,17 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public long save(UserCreationRequest request) {
-        // TODO: Implement create user logic
+        
+        UserEntity userByUsername = userRepository.findByUsername(request.getUsername());
+        if (userByUsername != null) {
+            throw new InvalidDataException("Username already exists");
+        }
+
+        UserEntity userByEmail = userRepository.findByEmail(request.getEmail());
+        if (userByEmail != null) {
+            throw new InvalidDataException("Email already exists");
+        }
+
         UserEntity user = new UserEntity();
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
