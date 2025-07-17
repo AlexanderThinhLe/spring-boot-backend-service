@@ -2,16 +2,21 @@ package thinh.springboot.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.ResourceAccessException;
+import org.springframework.util.StringUtils;
 import thinh.springboot.common.Gender;
 import thinh.springboot.common.UserStatus;
 import thinh.springboot.controller.request.AddressRequest;
 import thinh.springboot.controller.request.UserChangePwRequest;
 import thinh.springboot.controller.request.UserCreationRequest;
 import thinh.springboot.controller.request.UserUpdateRequest;
+import thinh.springboot.controller.response.UserPageResponse;
 import thinh.springboot.controller.response.UserResponse;
 import thinh.springboot.exception.ResourceNotFoundException;
 import thinh.springboot.model.AddressEntity;
@@ -22,6 +27,8 @@ import thinh.springboot.service.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @Slf4j(topic = "USER_SERVICE")
@@ -32,15 +39,53 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public List<UserResponse> findAll() {
-        // TODO: Implement find all users logic
-        return null;
+    public UserPageResponse findAll(String keyword, String sort, int page, int size) {
+        // Sorting
+        Sort.Order order = new Sort.Order(Sort.Direction.ASC, "id");
+        if (StringUtils.hasLength(sort)) {
+            Pattern pattern = Pattern.compile("(\\w+?)(:)(.*)"); // tencot:asc|desc
+            Matcher matcher = pattern.matcher(sort);
+            if (matcher.find()) {
+                String columnName = matcher.group(1);
+                if (matcher.group(3).equalsIgnoreCase("asc")) {
+                    order = new Sort.Order(Sort.Direction.ASC, columnName);
+                } else {
+                    order = new Sort.Order(Sort.Direction.DESC, columnName);
+                }
+            }
+        }
+
+        int pageNo = page > 0 ? page - 1 : 0;
+
+        // Paging
+        Pageable pageable = PageRequest.of(pageNo, size, Sort.by(order));
+        Page<UserEntity> entityPage;
+
+        // Search by keyword
+        if (StringUtils.hasLength(keyword)) {
+            keyword = "%" + keyword.toLowerCase() + "%";
+            entityPage = userRepository.searchByKeyword(keyword, pageable);
+        } else {
+            entityPage = userRepository.findAll(pageable);
+        }
+
+        return getUserPageResponse(page, size, entityPage);
     }
 
     @Override
     public UserResponse findById(Long id) {
-        // TODO: Implement find user by ID logic
-        return null;
+        UserEntity user = getUserEntity(id);
+
+        return UserResponse.builder()
+                .id(user.getId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .gender(user.getGender())
+                .birthday(user.getDateOfBirth())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .build();
     }
 
     @Override
@@ -174,5 +219,41 @@ public class UserServiceImpl implements UserService {
      */
     private UserEntity getUserEntity(Long id) {
         return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    }
+
+    /**
+     * Convert UserEntities to UserResponse
+     *
+     * @param page
+     * @param size
+     * @param userEntities
+     * @return
+     */
+    private static UserPageResponse getUserPageResponse(int page, int size, Page<UserEntity> userEntities) {
+        log.info("Convert User Entity Page");
+
+        List<UserResponse> userResponseList = userEntities
+                .stream()
+                .map(entity -> UserResponse.builder()
+                        .id(entity.getId())
+                        .firstName(entity.getFirstName())
+                        .lastName(entity.getLastName())
+                        .gender(entity.getGender())
+                        .birthday(entity.getDateOfBirth())
+                        .username(entity.getUsername())
+                        .phone(entity.getPhone())
+                        .email(entity.getEmail())
+                        .build()
+                ).toList();
+
+        UserPageResponse response = new UserPageResponse();
+
+        response.setPageNumber(page);
+        response.setPageSize(size);
+        response.setTotalElements(userEntities.getTotalElements());
+        response.setTotalPages(userEntities.getTotalPages());
+        response.setUserResponseList(userResponseList);
+
+        return response;
     }
 } 
