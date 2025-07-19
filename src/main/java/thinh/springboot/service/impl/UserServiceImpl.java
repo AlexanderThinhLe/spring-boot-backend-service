@@ -24,8 +24,10 @@ import thinh.springboot.model.AddressEntity;
 import thinh.springboot.model.UserEntity;
 import thinh.springboot.repository.AddressRepository;
 import thinh.springboot.repository.UserRepository;
+import thinh.springboot.service.EmailService;
 import thinh.springboot.service.UserService;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -38,6 +40,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final AddressRepository addressRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     @Override
     public UserPageResponse findAll(String keyword, String sort, int page, int size) {
@@ -148,6 +151,14 @@ public class UserServiceImpl implements UserService {
             }
             addressRepository.saveAll(addresses);
         }
+
+        // Send email confirm
+        try {
+            emailService.sendVerificationEmail(request.getEmail(), request.getUsername());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         return user.getId();
     }
 

@@ -14,6 +14,11 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: none
+  sendGrid:
+    apiKey: ${SENDGRID_API_KEY}
+    templateId: d-cd323b342c6c4d06958a41f4f39d9a22
+    fromEmail: alexenderthk56789@gmail.com
+    verificationLink: http://localhost:8080/user/confirm-email
 
 # application-dev.yml
 springdoc:
