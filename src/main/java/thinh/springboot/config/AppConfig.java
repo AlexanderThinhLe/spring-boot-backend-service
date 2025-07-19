@@ -1,5 +1,7 @@
 package thinh.springboot.config;
 
+import com.sendgrid.SendGrid;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -13,11 +15,8 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 
 @Configuration
 public class AppConfig {
-    // Init Spring Web Security
-
-    // Config Spring Web configurer
-
-    // Init bean for passwordEncoder
+    @Value("${spring.sendgrid.apiKey}")
+    private String sendGridApiKey;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -38,5 +37,10 @@ public class AppConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public SendGrid sendGrid() {
+        return new SendGrid(sendGridApiKey);
     }
 }
