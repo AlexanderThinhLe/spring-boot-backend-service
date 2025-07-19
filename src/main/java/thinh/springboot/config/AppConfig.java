@@ -15,7 +15,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 
 @Configuration
 public class AppConfig {
-    @Value("${spring.sendgrid.apiKey}")
+    @Value("${spring.sendGrid.apiKey}")
     private String sendGridApiKey;
 
     @Bean
