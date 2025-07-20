@@ -3,6 +3,7 @@ package thinh.springboot.exception;
 import jakarta.validation.ConstraintViolationException;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -113,6 +114,26 @@ public class GlobalException {
 
        return errorResponse;
    }
+
+    /**
+     * Handle exception when the request not found data
+     *
+     * @param e
+     * @param request
+     * @return
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(FORBIDDEN)
+    public ErrorResponse handleForBiddenException(AccessDeniedException e, WebRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setTimestamp(new Date());
+        errorResponse.setPath(request.getDescription(false).replace("uri=", ""));
+        errorResponse.setStatus(FORBIDDEN.value());
+        errorResponse.setError(FORBIDDEN.getReasonPhrase());
+        errorResponse.setMessage(e.getMessage());
+
+        return errorResponse;
+    }
 
    @Getter
    @Setter
