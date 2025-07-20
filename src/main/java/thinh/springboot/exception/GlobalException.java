@@ -4,10 +4,10 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
@@ -27,7 +27,7 @@ public class GlobalException {
    @ExceptionHandler({ConstraintViolationException.class, // Error in request body
                    MissingServletRequestParameterException.class, // Error in request params
                    MethodArgumentNotValidException.class})
-   @ResponseStatus(BAD_REQUEST) // ~ 400
+//   @ResponseStatus(BAD_REQUEST) // ~ 400
    public ErrorResponse handleValidationException(Exception e, WebRequest request) {
        ErrorResponse errorResponse = new ErrorResponse();
        errorResponse.setTimestamp(new Date());
@@ -55,6 +55,25 @@ public class GlobalException {
        return errorResponse;
    }
 
+    /**
+     * Handle exception when user not authenticated
+     *
+     * @param e
+     * @param request
+     * @return
+     */
+    @ExceptionHandler(InternalAuthenticationServiceException.class)
+    public ErrorResponse handleInternalAuthenticationServiceException(InternalAuthenticationServiceException e, WebRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setTimestamp(new Date());
+        errorResponse.setPath(request.getDescription(false).replace("uri=", ""));
+        errorResponse.setStatus(UNAUTHORIZED.value());
+        errorResponse.setError(UNAUTHORIZED.getReasonPhrase());
+        errorResponse.setMessage("Username or password is incorrect");
+
+        return errorResponse;
+    }
+
    /**
     * Handle exception when the request not found data
     *
@@ -63,7 +82,7 @@ public class GlobalException {
     * @return
     */
    @ExceptionHandler(ResourceNotFoundException.class)
-   @ResponseStatus(NOT_FOUND) // ~ 404
+//   @ResponseStatus(NOT_FOUND) // ~ 404
    public ErrorResponse handleResourceNotFoundException(ResourceNotFoundException e, WebRequest request) {
        ErrorResponse errorResponse = new ErrorResponse();
        errorResponse.setTimestamp(new Date());
@@ -83,7 +102,7 @@ public class GlobalException {
     * @return
     */
    @ExceptionHandler(InvalidDataException.class)
-   @ResponseStatus(CONFLICT) // ~ 409
+//   @ResponseStatus(CONFLICT) // ~ 409
    public ErrorResponse handleDuplicateKeyException(InvalidDataException e, WebRequest request) {
        ErrorResponse errorResponse = new ErrorResponse();
        errorResponse.setTimestamp(new Date());
@@ -103,7 +122,7 @@ public class GlobalException {
     * @return error
     */
    @ExceptionHandler(Exception.class)
-   @ResponseStatus(INTERNAL_SERVER_ERROR) // ~ 500
+//   @ResponseStatus(INTERNAL_SERVER_ERROR) // ~ 500
    public ErrorResponse handleException(Exception e, WebRequest request) {
        ErrorResponse errorResponse = new ErrorResponse();
        errorResponse.setTimestamp(new Date());
@@ -122,9 +141,9 @@ public class GlobalException {
      * @param request
      * @return
      */
-    @ExceptionHandler(AccessDeniedException.class)
-    @ResponseStatus(FORBIDDEN)
-    public ErrorResponse handleForBiddenException(AccessDeniedException e, WebRequest request) {
+    @ExceptionHandler({AccessDeniedException.class})
+//    @ResponseStatus(FORBIDDEN)
+    public ErrorResponse handleAccessDeniedException(AccessDeniedException e, WebRequest request) {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setTimestamp(new Date());
         errorResponse.setPath(request.getDescription(false).replace("uri=", ""));

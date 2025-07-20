@@ -85,7 +85,7 @@ public class UserServiceImpl implements UserService {
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .gender(user.getGender())
-                .birthday(user.getDateOfBirth())
+                .birthday(user.getBirthday())
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .phone(user.getPhone())
@@ -123,7 +123,7 @@ public class UserServiceImpl implements UserService {
         user.setEmail(request.getEmail());
         user.setFirstName(request.getFirstName());        
         user.setLastName(request.getLastName());
-        user.setDateOfBirth(request.getDayOfBirth());
+        user.setBirthday(request.getDayOfBirth());
         user.setGender(Gender.valueOf(request.getGender().toUpperCase()));
         user.setPhone(request.getPhone());
         user.setType(request.getUserType());
@@ -171,7 +171,7 @@ public class UserServiceImpl implements UserService {
         user.setFirstName(req.getFirstName());
         user.setLastName(req.getLastName());
         user.setGender(req.getGender());
-        user.setDateOfBirth(req.getBirthday());
+        user.setBirthday(req.getBirthday());
         user.setEmail(req.getEmail());
         user.setPhone(req.getPhone());
         user.setUsername(req.getUsername());
@@ -261,7 +261,7 @@ public class UserServiceImpl implements UserService {
                         .firstName(entity.getFirstName())
                         .lastName(entity.getLastName())
                         .gender(entity.getGender())
-                        .birthday(entity.getDateOfBirth())
+                        .birthday(entity.getBirthday())
                         .username(entity.getUsername())
                         .phone(entity.getPhone())
                         .email(entity.getEmail())

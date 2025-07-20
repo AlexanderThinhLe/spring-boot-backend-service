@@ -3,21 +3,12 @@ package thinh.springboot.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
-import java.util.Date;
 
 @Entity
 @Table(name = "tbl_address")
 @Getter
 @Setter
-public class AddressEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
-
+public class AddressEntity extends AbstractEntity<Long> {
     @Column(name = "apartment_number", length = 255)
     private String apartmentNumber;
 
@@ -44,14 +35,4 @@ public class AddressEntity {
 
     @Column(name = "user_id")
     private Long userId;
-
-    @Column(name = "created_at")
-    @Temporal(TemporalType.TIMESTAMP)
-    @CreationTimestamp
-    private Date createdAt;
-
-    @Column(name = "updated_at")
-    @Temporal(TemporalType.TIMESTAMP)
-    @UpdateTimestamp
-    private Date updatedAt;
 }
