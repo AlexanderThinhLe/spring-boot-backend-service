@@ -36,7 +36,7 @@ public class AppConfig {
                         .anyRequest().authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
                 .authenticationProvider(authenticationProvider())
-                // If request URL not start with "auth/**/", it will go to customizeRequestFilter
+                // CustomizeRequestFilter will be run before API go to controller
                 .addFilterBefore(customizeRequestFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

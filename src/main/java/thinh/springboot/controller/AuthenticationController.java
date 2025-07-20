@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import thinh.springboot.service.AuthenticationService;
 
 @RestController
 @RequestMapping("/auth")
@@ -18,25 +19,21 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j(topic = "AUTHENTICATION-CONTROLLER")
 @Tag(name = "Authentication Controller")
 public class AuthenticationController {
+    private final AuthenticationService authenticationService;
+
     @Operation(summary = "Get access token", description = "Get access token and refresh token by username and password")
     @PostMapping("/access-token")
     public TokenResponse getAccessToken(@RequestBody LoginRequest request) {
         log.info("Request access token");
 
-        return TokenResponse.builder()
-                .accessToken("accessToken")
-                .refreshToken("refreshToken")
-                .build();
+        return authenticationService.getAccessToken(request);
     }
 
     @Operation(summary = "Get refresh token", description = "Get new access token by refresh token")
     @PostMapping("/refresh-token")
     public TokenResponse getRefreshToken(@RequestBody String refreshToken) {
-        log.info("Request refresh token");
+        log.info("Refresh token request");
 
-        return TokenResponse.builder()
-                .accessToken("New accessToken")
-                .refreshToken("refreshToken")
-                .build();
+        return authenticationService.getRefreshToken(refreshToken);
     }
 }
