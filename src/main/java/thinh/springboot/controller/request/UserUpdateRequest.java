@@ -1,6 +1,7 @@
 package thinh.springboot.controller.request;
 
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import thinh.springboot.common.Gender;
 
@@ -14,6 +15,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 @Getter
+@Setter
 @ToString
 public class UserUpdateRequest implements Serializable {
     @NotNull(message = "User ID is required")
