@@ -1,6 +1,7 @@
 package thinh.springboot.controller.request;
 
 import lombok.Getter;
+import lombok.Setter;
 import thinh.springboot.common.UserType;
 
 import java.io.Serializable;
@@ -11,6 +12,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 @Getter
+@Setter
 public class UserCreationRequest implements Serializable {
     @NotBlank(message = "First name is required")
     private String firstName;
